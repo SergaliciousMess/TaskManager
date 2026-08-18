@@ -13,3 +13,5 @@ export const inReview = 'in_review'
 export const statuses = [todo, inProgress, inReview, done]
 export const label = {todo: "To Do", done: "Done", in_progress: "In Progress", in_review: "In Review"}
 export const columns = ['title', 'status', 'description']
+
+export const domain = 'https://taskmanager.chirpsoft.workers.dev/'

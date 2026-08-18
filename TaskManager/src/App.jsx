@@ -1,7 +1,7 @@
 import 'reactjs-popup/dist/index.css'
 import './index.css'
 import { useState, useEffect } from 'react'
-import {supabase} from "./constants.jsx"
+import {supabase, domain} from "./constants.jsx"
 import {TaskManager} from './TaskManager.jsx'
 
 const home = "home"
@@ -22,6 +22,9 @@ async function logIn({email, password}) {
     return await supabase.auth.signInWithPassword({
         email: email,
         password: password,
+        options: {
+            emailRedirectTo: domain,
+        },
     })
 }
 
