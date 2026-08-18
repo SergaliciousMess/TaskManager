@@ -2,6 +2,7 @@ import {useDraggable, useDroppable} from '@dnd-kit/react';
 import {label, statuses, todo} from "./constants.jsx";
 import Popup from 'reactjs-popup';
 import {useState} from "react";
+import trash from '/trash.png'
 
 export const Trash = () =>{
     const {ref} = useDroppable({
@@ -12,7 +13,7 @@ export const Trash = () =>{
             <Popup className="trash_popup"
                 trigger = {
                     <button id="trash_button" type={"button"} onClick={() => {}}>
-                        <img src="trash.png" alt="Trash: drag and drop a task here to delete it." ref={ref} className="trash"/>
+                        <img src={trash} alt="Trash: drag and drop a task here to delete it." ref={ref} className="trash"/>
                     </button>
                 }
                 position="top">
@@ -99,7 +100,7 @@ export const NewTask = ({createTask, setPage}) => {
         <>
             <div>
                 <h3>Name:</h3>
-                <input id="input"  placeholder="Please enter a name" onChange={(e) => setTitle(e.target.value)} />
+                <input id="input" placeholder="Please enter a name" onChange={(e) => setTitle(e.target.value)} />
             </div>
             <div>
                 <h3>Status:</h3>

@@ -1,53 +1,197 @@
 import 'reactjs-popup/dist/index.css'
 import './index.css'
-import {useState, useEffect} from 'react'
+import { useState, useEffect } from 'react'
+import {supabase} from "./constants.jsx"
 import {TaskManager} from './TaskManager.jsx'
-import {supabase} from './constants.jsx'
+
+const home = "home"
+const login = "login"
+const register = "register"
+const taskmanager = "taskmanager"
+const changepw = "changepw"
 
 
-export default function App() {
-    const [loading, setLoading] = useState(false)
+async function signUp({email, password}) {
+    return await supabase.auth.signUp({
+        email: email,
+        password: password,
+    })
+}
+
+async function logIn({email, password}) {
+    return await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+    })
+}
+
+
+async function changePassword({old_password, new_password}) {
+    return await supabase.auth.updateUser({
+        password: new_password,
+        current_password: old_password,
+    })
+}
+
+
+const Home = ({setScene}) => {
+    return (
+        <>
+            <h1>Task Manager</h1>
+            <div>
+                <button className={"button"} id="task_button" onClick={() => setScene(login)}>Log in</button>
+                <button className={"button"} id="task_button" onClick={() => setScene(register)}>Register</button>
+            </div>
+        </>
+    )
+}
+
+const Login = ({setScene, logIn}) => {
     const [email, setEmail] = useState('')
+    const [error, setError] = useState('')
+    const [password, setPassword] = useState('')
+    const [loading, setLoading] = useState(false)
+    return (
+        <>
+            <h3>Email:</h3>
+            <div>
+                <input id="input" type={"email"} disabled={loading} placeholder="Please enter your email" onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <h3>Password:</h3>
+            <div>
+                <input id="input" type={"password"} disabled={loading} placeholder="Please enter your password" onChange={(e) => setPassword(e.target.value)} />
+            </div>
+            <div>
+                <h4 id="error">{error}</h4>
+            </div>
+            <button className={"button"} id="task_button" disabled={loading} onClick={() => setScene(home)}>Go back</button>
+            <button className={"button"} id="task_button" disabled={loading || email==='' || password ===''} onClick={() => {
+                setLoading(true)
+                setError('')
+                logIn({email: email, password: password}).then((result) => {
+                    console.log(result)
+                    if (result.error) {
+                        setError('Invalid email or password')
+                    }
+                    setLoading(false)
+                }, (error) => {
+                    console.log(error)
+                    setLoading(false)
+                    setError('An error has occurred: Try again')
+                })
+            }
+            }>Log in</button>
+            {loading ? <div>Loading...</div> : null}
+        </>
+    )
+}
+
+const Register = ({setScene, signUp}) => {
+    const [email, setEmail] = useState('')
+    const [password1, setPassword1] = useState('')
+    const [password2, setPassword2] = useState('')
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
+    const checkPassword = () => {
+        if (password1 === password2) {
+            setError('')
+            setLoading(true)
+            let p = signUp({email:email, password:password1})
+            p.then((result) => {
+                if (result.error) {
+                    setError('Something went wrong')
+                } else {
+                    alert("Check your email for a verification code!")
+                }
+                setLoading(false)
+            }, (error) => {
+                setError("An error has occurred: Try again")
+                console.log(error)
+            })
+        } else {
+            setError('Passwords do not match')
+        }
+    }
+    return (
+        <>
+            <h3>Email:</h3>
+            <div>
+                <input id="input" type={"email"} disabled={loading} placeholder="Please enter your email" onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <h3>Password:</h3>
+            <div>
+                <input id="input" type={"password"} disabled={loading} placeholder="Please enter your password" onChange={(e) => setPassword1(e.target.value)} />
+            </div>
+            <h3>Re-Enter Password:</h3>
+            <div>
+                <input id="input" type={"password"} disabled={loading} placeholder="Please enter your password" onChange={(e) => setPassword2(e.target.value)} />
+            </div>
+            <div>
+                <h4 id="error">{error}</h4>
+            </div>
+            <button className={"button"} id="task_button" disabled={loading} onClick={() => setScene(home)}>Go back</button>
+            <button className={"button"} id="task_button" disabled={loading || password1 === '' || password2 === '' || email === ''} onClick={checkPassword}>Create account</button>
+            {loading ? <div>Loading...</div> : null}
+        </>
+    )
+}
+
+const ChangePassword = ({setScene, changePassword}) => {
+    const [loading, setLoading] = useState(false)
+    const [oldPassword, setOldPassword] = useState('')
+    const [password1, setPassword1] = useState('')
+    const [password2, setPassword2] = useState('')
+    const [error, setError] = useState('')
+    function checkPassword() {
+        if (password1 === password2) {
+            setError('')
+            setLoading(true)
+            let p = changePassword({old_password: oldPassword, new_password:password1})
+            p.then((result) => {
+                alert("Password changed!")
+                setLoading(false)
+            }, (error) => {
+                setError("An error occurred")
+                console.log(error)
+            })
+        } else {
+            setError('Passwords do not match')
+        }
+    }
+    return (
+        <>
+            <h3>Old Password:</h3>
+            <div>
+                <input id="input" type={"password"} placeholder="Please enter your password" onChange={(e) => setOldPassword(e.target.value)} />
+            </div>
+            <h3>New Password:</h3>
+            <div>
+                <input id="input" type={"password"} placeholder="Please enter your password" onChange={(e) => setPassword1(e.target.value)} />
+            </div>
+            <h3>Re-Enter New Password:</h3>
+            <div>
+                <input id="input" type={"password"}  placeholder="Please enter your password" onChange={(e) => setPassword2(e.target.value)} />
+            </div>
+
+            <div>
+                <h4 id="error">{error}</h4>
+            </div>
+            <button className={"button"} id="task_button" onClick={() => setScene(taskmanager)}>Go back</button>
+            <button className={"button"} id="task_button" disabled={loading || oldPassword === '' || password1 === '' || password2 === ''} onClick={checkPassword}>Change Password</button>
+        </>
+    )
+}
+
+
+const App = () => {
+    const [scene, setScene] = useState(home)
     const [claims, setClaims] = useState(null)
 
-    // Check URL params on initial render
-    const params = new URLSearchParams(window.location.search)
-    const hasTokenHash = params.get('token_hash')
-
-    const [verifying, setVerifying] = useState(!!hasTokenHash)
-    const [authError, setAuthError] = useState(null)
-    const [authSuccess, setAuthSuccess] = useState(false)
-
-
-
     useEffect(() => {
-        // Check if we have token_hash in URL (magic link callback)
-        const params = new URLSearchParams(window.location.search)
-        const token_hash = params.get('token_hash')
-        const type = params.get('type')
-
-        if (token_hash) {
-            // Verify the OTP token
-            supabase.auth
-                .verifyOtp({
-                    token_hash,
-                    type: type || 'email',
-                })
-                .then(({ error }) => {
-                    if (error) {
-                        setAuthError(error.message)
-                    } else {
-                        setAuthSuccess(true)
-                        // Clear URL params
-                        window.history.replaceState({}, document.title, '/')
-                    }
-                    setVerifying(false)
-                })
-        }
-
         // Check for existing session using getClaims
         supabase.auth.getClaims().then(({ data: { claims } }) => {
             setClaims(claims)
+            setScene(taskmanager)
         })
 
         // Listen for auth changes
@@ -56,109 +200,38 @@ export default function App() {
         } = supabase.auth.onAuthStateChange(() => {
             supabase.auth.getClaims().then(({ data: { claims } }) => {
                 setClaims(claims)
+                setScene(taskmanager)
             })
         })
 
         return () => subscription.unsubscribe()
     }, [])
 
-    const handleLogin = async (event) => {
-        event.preventDefault()
-        setLoading(true)
-        const { error } = await supabase.auth.signInWithOtp({
-            email,
-            options: {
-                emailRedirectTo: window.location.origin,
-            },
-        })
-        if (error) {
-            alert(error.error_description || error.message)
-        } else {
-            alert('Check your email for the login link!')
-        }
-        setLoading(false)
-    }
-
-    const handleLogout = async () => {
-        await supabase.auth.signOut()
+    async function logOut() {
         setClaims(null)
+        setScene(home)
+        await supabase.auth.signOut()
     }
 
-    // Show verification state
-    if (verifying) {
-        return (
-            <div>
-                <h1>Authentication</h1>
-                <p>Confirming your magic link...</p>
-                <p>Loading...</p>
-            </div>
-        )
-    }
-
-    // Show auth error
-    if (authError) {
-        return (
-            <div>
-                <h1>Authentication</h1>
-                <p>✗ Authentication failed</p>
-                <p>{authError}</p>
-                <button
-                    onClick={() => {
-                        setAuthError(null)
-                        window.history.replaceState({}, document.title, '/')
-                    }}
-                >
-                    Return to login
-                </button>
-            </div>
-        )
-    }
-
-    // Show auth success (briefly before claims load)
-    if (authSuccess && !claims) {
-        return (
-            <div>
-                <h1>Authentication</h1>
-                <p>✓ Authentication successful!</p>
-                <p>Loading your account...</p>
-            </div>
-        )
-    }
-
-    // If user is logged in, show welcome screen
-    if (claims) {
-        return (
-            <div>
-                <h1>
-                    Welcome to TaskManager
-                </h1>
-                <div id={'signout'}>
-                    <button className='button' id='signout' onClick={handleLogout}>Sign Out</button>
-                </div>
-                <div>
-                    <TaskManager/>
-                </div>
-            </div>
-        )
-    }
-
-    // Show login form
     return (
-        <div>
-            <h1>Supabase + React</h1>
-            <p>Sign in via magic link with your email below</p>
-            <form onSubmit={handleLogin}>
-                <input
-                    type="email"
-                    placeholder="Your email"
-                    value={email}
-                    required={true}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <button disabled={loading}>
-                    {loading ? <span>Loading</span> : <span>Send magic link</span>}
-                </button>
-            </form>
-        </div>
+        <>
+            {scene === home && <Home setScene={setScene}/>}
+            {scene === changepw && <ChangePassword setScene={setScene} changePassword={changePassword}/>}
+            {scene === register && <Register setScene={setScene} signUp={signUp}/>}
+            {scene === login && <Login setScene={setScene} logIn={logIn}/>}
+            {scene === taskmanager &&
+                <>
+                    <div>
+                        <h1>Welcome to Task Manager</h1>
+                    </div>
+                    <div id={'account_header'}>
+                        <button className='button' id='account_header' onClick={logOut}>Sign Out</button>
+                        <button className='button' id='account_header' onClick={() =>{setScene(changepw)}}>Change Password</button>
+                    </div>
+                    {claims ? <TaskManager/> : <h3>Loading...</h3>}
+                </>}
+        </>
     )
 }
+
+export default App

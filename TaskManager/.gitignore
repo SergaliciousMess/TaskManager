@@ -26,3 +26,4 @@ dist-ssr
 
 #backup file
 backup of App.jsx
+supabase email auth.jsx

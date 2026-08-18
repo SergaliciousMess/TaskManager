@@ -1,7 +1,7 @@
 import {DragDropProvider} from '@dnd-kit/react';
 import {useState} from "react";
 import "./constants.jsx"
-import {columns, label, statuses, supabase, todo} from "./constants.jsx";
+import {columns, label, statuses, supabase} from "./constants.jsx";
 import {Task, NewTask, Trash, TaskContainer} from "./TaskManagerElements.jsx";
 
 //initialize task dictionary
@@ -124,7 +124,9 @@ export const TaskManager = () => {
                             deleteTask({id:event.operation.source.id})
                             return
                         }
-                        updateTask({id:event.operation.source.id, category:'status', value:event.operation.target?.id})
+                        if (event.operation.target?.id !== undefined) {
+                            updateTask({id:event.operation.source.id, category:'status', value:event.operation.target?.id})
+                        }
                     }}
                 >
                     {error ? <h2 id='error'>ERROR: Please reload</h2> : null}
