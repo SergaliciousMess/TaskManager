@@ -81,20 +81,22 @@ export const TaskManager = () => {
     //create a new task with title and status
     const createTask = async ({title, status, description}) => {
         const {data, error} = await supabase.rpc('new_task', {new_title:title, new_status:status, new_description:description})
+        console.log(data)
         if (error) {
             console.log(error)
-            return
-        }
-        setTasks((prevTasks) => {
-                return {
-                    ...prevTasks, [data]: {
-                        ['title']: title,
-                        ['status']: status,
-                        ['description']: description
+        } else {
+            setTasks((prevTasks) => {
+                    return {
+                        ...prevTasks, [data]: {
+                            ['title']: title,
+                            ['status']: status,
+                            ['description']: description
+                        }
                     }
                 }
-            }
-        )
+            )
+        }
+        return error
     }
 
     const deleteTask = async ({id}) => {

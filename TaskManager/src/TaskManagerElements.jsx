@@ -95,6 +95,7 @@ export const NewTask = ({createTask, setPage}) => {
     const [title, setTitle] = useState('')
     const [status, setStatus] = useState(todo)
     const [description, setDescription] = useState('')
+    const [error, setError] = useState('')
 
     return (
         <>
@@ -115,10 +116,23 @@ export const NewTask = ({createTask, setPage}) => {
                 <textarea id="input" rows='5' cols='50' onChange={(e) => setDescription(e.target.value)} />
             </div>
             <div>
+                <h3 id={"error"}>{error}</h3>
+            </div>
+            <div>
                 <button className='button' id='task_button' onClick={() => {setPage('home')}}>Cancel</button>
                 <button disabled={title===''} className='button' id='task_button' onClick={() => {
-                    createTask({title:title, status:status, description:description})
-                    setPage('home')
+                    setError('')
+                    let p = createTask({title:title, status:status, description:description})
+                    p.then((result)=> {
+                        if (result) {
+                            setError('An error has occurred')
+                        } else {
+                            setPage('home')
+                        }
+                    }, (error) => {
+                        console.log(error)
+                        setError('An error has occurred')
+                    })
 
                 }}>Create task</button>
             </div>
