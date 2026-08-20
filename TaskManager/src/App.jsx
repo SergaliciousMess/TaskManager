@@ -15,6 +15,9 @@ async function signUp({email, password}) {
     return await supabase.auth.signUp({
         email: email,
         password: password,
+        options: {
+            emailRedirectTo: domain,
+        },
     })
 }
 
@@ -22,9 +25,6 @@ async function logIn({email, password}) {
     return await supabase.auth.signInWithPassword({
         email: email,
         password: password,
-        options: {
-            emailRedirectTo: domain,
-        },
     })
 }
 
