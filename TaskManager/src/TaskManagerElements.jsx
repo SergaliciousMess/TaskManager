@@ -1,5 +1,5 @@
 import {useDraggable, useDroppable} from '@dnd-kit/react';
-import {label, statuses, todo} from "./constants.jsx";
+import {label, statuses, todo, titleLength, descriptionLength, serverError} from "./constants.jsx";
 import Popup from 'reactjs-popup';
 import {useState} from "react";
 import trash from '/trash.png'
@@ -62,7 +62,7 @@ export const Task = ({task, id, updateTask}) => {
             >
                 <div className='edit_popup_element'>
                     <h4  className='edit_popup_element'>Name:</h4>
-                    <input className='edit_popup_element' id="input" placeholder={task['title']} defaultValue={task['title']} onChange={(e) => {
+                    <input className='edit_popup_element' id="input" placeholder={task['title']} defaultValue={task['title']} maxLength={titleLength} onChange={(e) => {
                         let s = e.target.value
                         if (s === "") {
                             setNewName(task['title']);
@@ -73,7 +73,7 @@ export const Task = ({task, id, updateTask}) => {
                 </div>
                 <div className='edit_popup_element'>
                     <h4 className='edit_popup_element'>Description:</h4>
-                    <textarea className='edit_popup_element' id="input" defaultValue={task['description']} onChange={(e) => {setNewDescription(e.target.value)}} />
+                    <textarea className='edit_popup_element' id="input" defaultValue={task['description']} maxLength={descriptionLength} onChange={(e) => {setNewDescription(e.target.value)}} />
                 </div>
                 <div className='edit_popup_element' id="save_edit_button">
                     <button className="edit_popup_element" id='save_edit_button' onClick={() => {
@@ -101,7 +101,7 @@ export const NewTask = ({createTask, setPage}) => {
         <>
             <div>
                 <h3>Name:</h3>
-                <input id="input" placeholder="Please enter a name" onChange={(e) => setTitle(e.target.value)} />
+                <input id="input" placeholder="Please enter a name" maxLength={titleLength} onChange={(e) => setTitle(e.target.value)} />
             </div>
             <div>
                 <h3>Status:</h3>
@@ -113,7 +113,7 @@ export const NewTask = ({createTask, setPage}) => {
             </div>
             <div>
                 <h3>Description: (optional)</h3>
-                <textarea id="input" rows='5' cols='50' onChange={(e) => setDescription(e.target.value)} />
+                <textarea id="input" rows='5' cols='50' maxLength={descriptionLength} onChange={(e) => setDescription(e.target.value)} />
             </div>
             <div>
                 <h3 id={"error"}>{error}</h3>
@@ -123,15 +123,15 @@ export const NewTask = ({createTask, setPage}) => {
                 <button disabled={title===''} className='button' id='task_button' onClick={() => {
                     setError('')
                     let p = createTask({title:title, status:status, description:description})
-                    p.then((result)=> {
-                        if (result) {
-                            setError('An error has occurred')
+                    p.then((error)=> {
+                        if (error) {
+                            setError('An error has occurred:\n' + error.message)
                         } else {
                             setPage('home')
                         }
                     }, (error) => {
                         console.log(error)
-                        setError('An error has occurred')
+                        setError(serverError)
                     })
 
                 }}>Create task</button>

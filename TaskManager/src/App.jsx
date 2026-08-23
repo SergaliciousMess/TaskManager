@@ -1,7 +1,7 @@
 import 'reactjs-popup/dist/index.css'
 import './index.css'
 import { useState, useEffect } from 'react'
-import {supabase, domain} from "./constants.jsx"
+import {supabase, domain, serverError} from "./constants.jsx"
 import {TaskManager} from './TaskManager.jsx'
 
 const home = "home"
@@ -72,7 +72,6 @@ const Login = ({setScene, logIn}) => {
                 setLoading(true)
                 setError('')
                 logIn({email: email, password: password}).then((result) => {
-                    console.log(result)
                     if (result.error) {
                         setError('Invalid email or password')
                     }
@@ -151,10 +150,14 @@ const ChangePassword = ({setScene, changePassword}) => {
             setLoading(true)
             let p = changePassword({old_password: oldPassword, new_password:password1})
             p.then((result) => {
-                alert("Password changed!")
-                setLoading(false)
+                if (result.error) {
+                    setError('An error occurred:\n' + result.error.message)
+                } else {
+                    alert("Password changed!")
+                    setLoading(false)
+                }
             }, (error) => {
-                setError("An error occurred")
+                setError(serverError)
                 console.log(error)
             })
         } else {
